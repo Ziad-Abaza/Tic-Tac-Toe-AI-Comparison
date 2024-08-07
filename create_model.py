@@ -51,8 +51,6 @@ def create_model():
         layers.Flatten(input_shape=(3, 3, 1)),
         layers.Dense(128, activation='relu'),
         layers.Dense(128, activation='relu'),
-        layers.Dense(64, activation='relu'),
-        layers.Dense(32, activation='relu'),
         layers.Dense(9, activation='softmax')  # 9 خيارات للحركات
     ])
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
@@ -83,7 +81,7 @@ def generate_data(num_samples):
     return np.array(X), np.array(y)
 
 print("Generating data...")
-X, y = generate_data(50000)
+X, y = generate_data(10000)
 print("Data generated.")
 
 # تحويل البيانات لتناسب طبقات CNN
@@ -95,10 +93,10 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 model = create_model()
 
 print("Starting training...")
-model.fit(X_train, y_train, epochs=120, batch_size=64, validation_split=0.2)
+model.fit(X_train, y_train, epochs=70, batch_size=32, validation_split=0.2)
 print("Training finished.")
 
-model.save('tic_tac_toe_dnn_model_4.h5')
+model.save('tic_tac_toe_dnn_model_3.h5')
 print("Model saved.")
 
 # تقييم النموذج
@@ -118,5 +116,5 @@ def get_best_move(board, model):
 
 # اختبار الحركة
 board = np.zeros((3, 3))
-model = tf.keras.models.load_model('tic_tac_toe_dnn_model_4.h5')
+model = tf.keras.models.load_model('tic_tac_toe_dnn_model_3.h5')
 print(get_best_move(board, model))

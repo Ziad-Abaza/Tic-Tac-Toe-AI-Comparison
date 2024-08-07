@@ -6,7 +6,7 @@ import tensorflow as tf
 app = Flask(__name__)
 CORS(app) 
 
-model = tf.keras.models.load_model('tic_tac_toe_dnn_model_3.h5')
+model = tf.keras.models.load_model('tic_tac_toe_dnn_model.h5')
 
 @app.route('/')
 def index():
