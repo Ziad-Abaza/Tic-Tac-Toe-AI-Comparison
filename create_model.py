@@ -2,23 +2,30 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, models
 from sklearn.model_selection import train_test_split
-
-# دالة للتحقق من الفائز
+#################################################
+# check winner: للتحقق من وجود ثلاث رموز متطابقة على التوالي
+#################################################
 def check_winner(board):
     for i in range(3):
-        if abs(sum(board[i])) == 3:  # تحقق من الصفوف
+        #Check each row
+        if abs(sum(board[i])) == 3:  
             return board[i][0]
-        if abs(sum(board[:, i])) == 3:  # تحقق من الأعمدة
+        # Check each column
+        if abs(sum(board[:, i])) == 3:
             return board[0][i]
-    if abs(board[0, 0] + board[1, 1] + board[2, 2]) == 3:  # تحقق من القطر الرئيسي
+    # Check main diameter (from upper left corner to lower right corner)
+    if abs(board[0, 0] + board[1, 1] + board[2, 2]) == 3: 
         return board[0, 0]
-    if abs(board[0, 2] + board[1, 1] + board[2, 0]) == 3:  # تحقق من القطر العكسي
+    # Check the reverse diameter (from the upper right corner to the lower left corner)
+    if abs(board[0, 2] + board[1, 1] + board[2, 0]) == 3:  
         return board[0, 2]
     return 0
-
-# دالة للبحث عن الحركة لمنع الخصم من الفوز أو للفوز
+#################################################
+# find best move:  البحث عن الحركة لمنع الخصم من الفوز أو للفوز
+#################################################
 def find_best_move(board, player):
     # التحقق من الفرص لمنع الخصم من الفوز
+    # عن طريق وضع رمز الخصم في هذه الخلية وتتحقق إذا كان الخصم سيفوز بهذه الحركة
     for i in range(3):
         for j in range(3):
             if board[i, j] == 0:
@@ -29,6 +36,8 @@ def find_best_move(board, player):
                 board[i, j] = 0
 
     # التحقق من الفرص للفوز
+    # عن طريق وضع رمز اللاعب في هذه الخلية وتتحقق إذا كانت هذه الحركة ستؤدي إلى فوز اللاعب.
+    # إذا كانت الحركة ستؤدي إلى فوز اللاعب، تعيد الدالة موقع هذه الخلية لتحقيق الفوز.
     for i in range(3):
         for j in range(3):
             if board[i, j] == 0:
@@ -38,17 +47,18 @@ def find_best_move(board, player):
                     return i, j
                 board[i, j] = 0
 
-    # اختيار أي حركة متاحة أخرى
+    # تختار حركة عشوائية من بين الخلايا الفارغة المتاحة
     empty_positions = np.argwhere(board == 0)
     if len(empty_positions) > 0:
         return empty_positions[np.random.choice(len(empty_positions))]
 
     return None
-
-# بديل Minimax: شبكة عصبية لتوقع الحركات
+#################################################
+# create model DNN
+#################################################
 def create_model():
     model = models.Sequential([
-        layers.Flatten(input_shape=(3, 3, 1)),
+        layers.Flatten(input_shape=(3, 3, 1)), # شكل الإدخال الذي يمثل لوح اللعبة (3 صفوف، 3 أعمدة، و1 قناة للون)
         layers.Dense(128, activation='relu'),
         layers.Dense(128, activation='relu'),
         layers.Dense(9, activation='softmax')  # 9 خيارات للحركات
@@ -57,20 +67,26 @@ def create_model():
     return model
 
 def generate_data(num_samples):
+    # X: قائمة لتخزين اللوحات المسطحة.
+    # y: قائمة لتخزين الحركات المثلى.
     X = []
     y = []
     for _ in range(num_samples):
+        # إنشاء لوحة فارغة بحجم 3*3
         board = np.zeros((3, 3))
+        # تكرار بعدد الحركات في اللعبة
         for turn in range(9):
+        # تحديد اللاعب (1:X,-1:O) بالتناوب
             player = 1 if turn % 2 == 0 else -1
-
+            # البحث عن الحركة المثلى
             move = find_best_move(board, player)
+            # لم يتم العثور على حركة مثلى
             if move is None:
-                empty_positions = np.argwhere(board == 0)
+                empty_positions = np.argwhere(board == 0) #  العثور على الأماكن الفارغة في اللوحة
                 if len(empty_positions) == 0:
                     break
-                move = empty_positions[np.random.choice(len(empty_positions))]
-
+                move = empty_positions[np.random.choice(len(empty_positions))] #  اختيار حركة عشوائية من الأماكن الفارغة المتبقية
+            # تحديث اللوحة بالحركة المثلى
             board[tuple(move)] = player
             X.append(board.flatten())
             y.append(move[0] * 3 + move[1])
