@@ -1,5 +1,3 @@
-Here's a `README.md` file tailored for your Tic-Tac-Toe project using TensorFlow and Flask. This document includes sections for features, requirements, setup, how to run, usage, model training, file structure, and license.
-
 # Tic-Tac-Toe AI
 
 This project implements an AI for the classic Tic-Tac-Toe game using a Deep Neural Network (DNN) built with TensorFlow and a Flask web application for the frontend.
@@ -30,7 +28,7 @@ pip install tensorflow flask flask-cors numpy scikit-learn
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Ziad-Abaza/tic-tac-toe-ai.git
+   git clone https://github.com/Ziad-Abaza/tic_tac_toe-AI.git
    cd tic-tac-toe-ai
    ```
 
