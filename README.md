@@ -1,75 +1,24 @@
-# Tic-Tac-Toe AI
+# Tic-Tac-Toe AI Comparison
 
-This project implements an AI for the classic Tic-Tac-Toe game using a Deep Neural Network (DNN) built with TensorFlow and a Flask web application for the frontend.
+This repository contains two different approaches to building an AI for the classic game of Tic-Tac-Toe:
+1. **Reinforcement Learning with Deep Q-Network (RL-DQN)**
+2. **Deep Neural Network (DNN) with Minimax and Alpha-Beta Pruning**
 
-## Features
-
-- Play against an AI that learns optimal moves.
-- User-friendly web interface.
-- Predicts the next best move based on the current board state.
-- Uses a DNN model to evaluate game states.
-
-## Requirements
-
-- Python 3.x
-- TensorFlow
-- Flask
-- Flask-CORS
-- NumPy
-- scikit-learn
-
-You can install the required packages using:
-
-```bash
-pip install tensorflow flask flask-cors numpy scikit-learn
-```
-
-## Setup
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Ziad-Abaza/tic_tac_toe-AI.git
-   cd tic-tac-toe-ai
-   ```
-
-2. Ensure you have all the required packages installed as mentioned in the Requirements section.
-
-## How to Run
-
-1. Train the model (if not already trained):
-   - Run the `create_model.py` script to generate training data and train the model:
-   ```bash
-   python create_model.py
-   ```
-
-2. Start the Flask application:
-   ```bash
-   python app.py
-   ```
-
-3. Open your web browser and go to `http://127.0.0.1:5000` to access the game.
-
-## Usage
-
-- Click on the squares in the Tic-Tac-Toe grid to make your move.
-- The AI will respond with its move based on the current state of the board.
-
-## Model Training
-
-The model is trained on random game states where it learns to predict the best move based on the current configuration of the board. The training data is generated using the `generate_data` function in `create_model.py`, where multiple game states are simulated.
-
-### Model Structure
-
-- The model consists of:
-  - Input layer flattening the 3x3 board.
-  - Two hidden dense layers with ReLU activation.
-  - Output layer with softmax activation to represent the probabilities of the next moves.
+Each approach is implemented in a separate folder, and both include a Flask-based web interface for playing against the AI.
 
 ## File Structure
 
 ```
-tic-tac-toe-ai/
-│
+tic-tac-toe-RL-DQN/
+├── create_model.py          # Script to create and train the RL-DQN model.
+├── app.py                   # Flask application for the web interface.
+├── templates/
+│   └── index.html           # HTML file for the web interface.
+└── static/
+    ├── style.css            # CSS for styling the web application.
+    └── script.js            # JavaScript for game functionality.
+
+tic-tac-toe-DNN/
 ├── create_model.py          # Script to create and train the DNN model.
 ├── app.py                   # Flask application for the web interface.
 ├── templates/
@@ -78,3 +27,84 @@ tic-tac-toe-ai/
     ├── style.css            # CSS for styling the web application.
     └── script.js            # JavaScript for game functionality.
 ```
+
+## Model Structure
+
+### RL-DQN (Reinforcement Learning with Deep Q-Network)
+- **Environment**: The `TicTacToeEnv` class simulates the Tic-Tac-Toe game, handling the game state, moves, and rewards.
+- **DQN Agent**: The `DQNAgent` class implements the Deep Q-Network, which learns to play the game by interacting with the environment. It uses a neural network to approximate the Q-value function, which estimates the expected future rewards for each action.
+- **Training**: The agent is trained over multiple episodes, where it plays the game and updates its Q-values based on the rewards received. The agent uses an epsilon-greedy strategy to balance exploration and exploitation.
+
+### DNN (Deep Neural Network with Minimax and Alpha-Beta Pruning)
+- **Minimax with Alpha-Beta Pruning**: The `minimax` function is used to evaluate the best possible move by exploring the game tree. Alpha-Beta pruning is applied to reduce the number of nodes evaluated, making the algorithm more efficient.
+- **DNN Model**: The `create_model` function defines a deep neural network that takes the current board state as input and predicts the best move. The model is trained on a dataset of game states and corresponding optimal moves generated using the Minimax algorithm.
+- **Training**: The model is trained on a dataset of 5000 game states, with 20% of the data reserved for testing. The model uses dropout layers to prevent overfitting and is trained using the Adam optimizer.
+
+## Model Training
+
+### RL-DQN
+- The RL-DQN model is trained over 1000 episodes. During each episode, the agent plays the game and updates its Q-values based on the rewards received. The agent uses a replay buffer to store experiences and samples from this buffer to update the model.
+- The training process involves balancing exploration (random moves) and exploitation (moves based on the current Q-values). The epsilon value decreases over time, reducing the amount of exploration as the agent learns.
+
+### DNN
+- The DNN model is trained on a dataset of 5000 game states, with 20% of the data reserved for testing. The model is trained for 120 epochs using the Adam optimizer.
+- The dataset is generated using the Minimax algorithm with Alpha-Beta pruning, ensuring that the model learns from optimal moves. The model uses dropout layers to prevent overfitting.
+
+## Usage: How to Run
+
+### RL-DQN
+1. Navigate to the `tic-tac-toe-RL-DQN` folder.
+2. Run the `create_model.py` script to train the RL-DQN model:
+   ```bash
+   python create_model.py
+   ```
+3. Once the model is trained, run the Flask application:
+   ```bash
+   python app.py
+   ```
+4. Open your web browser and go to `http://127.0.0.1:5000/` to play against the AI.
+
+### DNN
+1. Navigate to the `tic-tac-toe-DNN` folder.
+2. Run the `create_model.py` script to train the DNN model:
+   ```bash
+   python create_model.py
+   ```
+3. Once the model is trained, run the Flask application:
+   ```bash
+   python app.py
+   ```
+4. Open your web browser and go to `http://127.0.0.1:5000/` to play against the AI.
+
+## Setup Requirements
+
+- Python 3.x
+- TensorFlow 2.x
+- Flask
+- Numpy
+- Numba (for DNN)
+
+You can install the required packages using pip:
+```bash
+pip install tensorflow flask numpy numba
+```
+
+## Features
+
+- **RL-DQN**: 
+  - Reinforcement Learning-based AI that learns to play Tic-Tac-Toe by interacting with the environment.
+  - Uses a Deep Q-Network to approximate the Q-value function.
+  - Epsilon-greedy strategy for balancing exploration and exploitation.
+
+- **DNN**:
+  - Deep Neural Network-based AI that predicts the best move using a dataset of optimal moves generated by the Minimax algorithm.
+  - Uses Alpha-Beta pruning to efficiently explore the game tree.
+  - Dropout layers to prevent overfitting during training.
+
+- **Web Interface**:
+  - Both models come with a Flask-based web interface that allows you to play against the AI in your browser.
+  - The interface includes a simple and intuitive design, with the game board displayed and the AI's moves shown in real-time.
+
+## Conclusion
+
+This repository provides two different approaches to building an AI for Tic-Tac-Toe, each with its own strengths and weaknesses. The RL-DQN approach is more flexible and can adapt to different strategies, while the DNN approach is more efficient and relies on precomputed optimal moves. Both models are trained to play the game at a high level and provide a challenging opponent for human players.

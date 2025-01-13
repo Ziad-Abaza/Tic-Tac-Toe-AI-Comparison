@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from numba import njit
 
 #################################################
-# check winner: للتحقق من وجود ثلاث رموز متطابقة على التوالي
+# check winner: Check if there are three identical symbols in a row
 #################################################
 @njit
 def check_winner(board):
@@ -16,10 +16,10 @@ def check_winner(board):
         # Check each column
         if abs(sum(board[:, i])) == 3:
             return board[0][i]
-    # Check main diameter (from upper left corner to lower right corner)
+    # Check main diagonal (from upper left corner to lower right corner)
     if abs(board[0, 0] + board[1, 1] + board[2, 2]) == 3: 
         return board[0, 0]
-    # Check the reverse diameter (from the upper right corner to the lower left corner)
+    # Check the reverse diagonal (from upper right corner to lower left corner)
     if abs(board[0, 2] + board[1, 1] + board[2, 0]) == 3:  
         return board[0, 2]
     return 0
@@ -65,7 +65,7 @@ def minimax(board, depth, alpha, beta, maximizing_player):
 # find best move using minimax
 #################################################
 def find_best_move(board, player):
-    # التحقق من وجود فرصة للفوز مباشرة
+    # Check if there is an immediate winning move
     for i in range(3):
         for j in range(3):
             if board[i, j] == 0:
@@ -75,7 +75,7 @@ def find_best_move(board, player):
                     return (i, j)
                 board[i, j] = 0
 
-    # التحقق من وجود فرصة للخصم للفوز في الخطوة التالية ومنعه
+    # Check if the opponent has an immediate winning move and block it
     opponent = -player
     for i in range(3):
         for j in range(3):
@@ -86,11 +86,11 @@ def find_best_move(board, player):
                     return (i, j)
                 board[i, j] = 0
 
-    # التحكم في المركز إذا كان متاحًا
+    # Control the center if available
     if board[1, 1] == 0:
         return (1, 1)
 
-    # استخدام Minimax مع Alpha-Beta Pruning لاختيار أفضل حركة
+    # Use Minimax with Alpha-Beta Pruning to choose the best move
     best_move = None
     best_value = -np.inf if player == 1 else np.inf
     for i in range(3):
@@ -109,12 +109,12 @@ def find_best_move(board, player):
 #################################################
 def create_model():
     model = models.Sequential([
-        layers.Flatten(input_shape=(3, 3, 1)),  # شكل الإدخال (3 صفوف، 3 أعمدة، 1 قناة)
+        layers.Flatten(input_shape=(3, 3, 1)),  # Input shape (3 rows, 3 columns, 1 channel)
         layers.Dense(256, activation='relu'),
-        layers.Dropout(0.2),  # إضافة Dropout لتجنب Overfitting
+        layers.Dropout(0.2),  # Add Dropout to avoid Overfitting
         layers.Dense(128, activation='relu'),
-        layers.Dropout(0.2),  # إضافة Dropout لتجنب Overfitting
-        layers.Dense(9, activation='softmax')  # 9 خيارات للحركات
+        layers.Dropout(0.2),  # Add Dropout to avoid Overfitting
+        layers.Dense(9, activation='softmax')  # 9 possible moves
     ])
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     return model
@@ -157,10 +157,10 @@ print("Generating data...")
 X, y = generate_data(5000)
 print("Data generated.")
 
-# تحويل البيانات لتناسب طبقات CNN
+# Reshape data to fit CNN layers
 X = X.reshape(-1, 3, 3, 1)
 
-# تقسيم البيانات للتدريب والاختبار
+# Split data for training and testing
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 model = create_model()
@@ -172,22 +172,22 @@ print("Training finished.")
 model.save('tic_tac_toe_dnn_model.h5')
 print("Model saved.")
 
-# تقييم النموذج
+# Evaluate the model
 loss, accuracy = model.evaluate(X_test, y_test)
 print(f"Test Accuracy: {accuracy * 100:.2f}%")
 
-# دالة لاختيار أفضل حركة
+# Function to choose the best move
 def get_best_move(board, model):
     flat_board = board.flatten().reshape(1, 3, 3, 1)
     predictions = model.predict(flat_board)
-    sorted_indices = np.argsort(predictions[0])[::-1]  # ترتيب التوقعات من الأكبر للأصغر
+    sorted_indices = np.argsort(predictions[0])[::-1]  # Sort predictions from highest to lowest
     for move in sorted_indices:
         row, col = divmod(move, 3)
         if board[row, col] == 0:
             return row, col
     return None
 
-# اختبار الحركة
+# Test the move
 board = np.zeros((3, 3))
 model = tf.keras.models.load_model('tic_tac_toe_dnn_model.h5')
 print(get_best_move(board, model))
