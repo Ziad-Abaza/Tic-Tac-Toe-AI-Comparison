@@ -19,10 +19,8 @@ def predict():
     prediction = model.predict(board)
     next_move = np.argmax(prediction)
     
-    # التحقق من أن الحركة صحيحة
     flat_board = data['board']
     if flat_board[next_move] != 0:
-        # إذا كانت الحركة غير صالحة، حاول العثور على حركة أخرى صالحة
         sorted_indices = np.argsort(prediction[0])[::-1]
         for move in sorted_indices:
             if flat_board[move] == 0:
