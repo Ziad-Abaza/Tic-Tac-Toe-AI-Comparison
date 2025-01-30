@@ -1,18 +1,20 @@
 let title = document.querySelector(".title");
+let statusText = document.getElementById("status");
 let squares = [];
 let turn = "X";
 let gameOver = false;
 let intervalId;
 
 function TheEnd(num1, num2, num3) {
-  title.innerHTML = `${squares[num1]} is the winner`;
-  document.getElementById("item" + num1).style.backgroundColor = "#602019";
-  document.getElementById("item" + num2).style.backgroundColor = "#602019";
-  document.getElementById("item" + num3).style.backgroundColor = "#602019";
+  statusText.innerHTML = `${squares[num1]} is the winner!`;
+  statusText.classList.add("winner");
+  document.getElementById("item" + num1).style.backgroundColor = "#4caf50";
+  document.getElementById("item" + num2).style.backgroundColor = "#4caf50";
+  document.getElementById("item" + num3).style.backgroundColor = "#4caf50";
 
-  clearInterval(intervalId); // إيقاف الرسائل المتكررة
+  clearInterval(intervalId);
   intervalId = setInterval(function () {
-    title.innerHTML += ".";
+    statusText.innerHTML += ".";
   }, 1000);
 
   setTimeout(function () {
@@ -50,14 +52,15 @@ function winner() {
     ) {
       gameOver = true;
       TheEnd(a, b, c);
-      return; // تأكد من أنه يتوقف بعد الانتصار
+      return;
     }
   }
 
   if (draw && !gameOver) {
-    title.innerHTML = "It's a Draw!";
+    statusText.innerHTML = "It's a Draw!";
+    statusText.classList.add("draw");
     setInterval(function () {
-      title.innerHTML += ".";
+      statusText.innerHTML += ".";
     }, 1000);
     setTimeout(function () {
       location.reload();
@@ -73,7 +76,7 @@ function game(id) {
       winner();
       if (!gameOver) {
         turn = "O";
-        title.innerHTML = "O";
+        statusText.innerHTML = "Player O's turn";
         setTimeout(makeMoveForO, 500);
       }
     } else {
@@ -96,8 +99,6 @@ function makeMoveForO() {
     );
   }
 
-  console.log("Board state sent to server:", board);
-
   fetch("http://127.0.0.1:5000/predict", {
     method: "POST",
     headers: {
@@ -107,18 +108,15 @@ function makeMoveForO() {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Response from server:", data);
       if (data.next_move !== undefined) {
         const nextMove = data.next_move + 1;
-        console.log("Next move:", nextMove);
         if (document.getElementById("item" + nextMove).innerHTML === "") {
           document.getElementById("item" + nextMove).innerHTML = "O";
           winner();
           turn = "X";
-          title.innerHTML = "X";
+          statusText.innerHTML = "Player X's turn";
         } else {
           console.error("Invalid move by AI: Cell is not empty");
-          // حاول الحصول على حركة أخرى من التوقعات المتبقية
           makeMoveForO();
         }
       } else {
